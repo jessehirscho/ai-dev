@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Custom LLM Chatbot</title>
+  <style>
+    body { font-family: Arial; padding: 2rem; }
+    #chat { border: 1px solid #ccc; padding: 1rem; width: 400px; height: 400px; overflow-y: scroll; margin-bottom: 1rem; }
+    #input { width: 300px; }
+    .user { font-weight: bold; margin-top: 10px; }
+    .bot { margin-left: 1rem; }
+  </style>
+</head>
+<body>
+
+  <h2>Ask your custom bot</h2>
+  <div id="chat"></div>
+
+  <input type="text" id="input" placeholder="Type your question..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("input");
+      const chat = document.getElementById("chat");
+      const question = input.value;
+      if (!question) return;
+
+      chat.innerHTML += `<div class="user">You: ${question}</div>`;
+      input.value = "";
+
+      const res = await fetch("http://127.0.0.1:5000/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
+
+      const data = await res.json();
+      chat.innerHTML += `<div class="bot">Bot: ${data.response}</div>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
