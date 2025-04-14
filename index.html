@@ -3,25 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <title>PDF QA Tool</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    .input-group {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+    }
+
+    #question {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      border-radius: 0 8px 8px 0;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #response-section {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    #response {
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-  <h1>Ask a Question from the PDF</h1>
-  <input type="text" id="question" placeholder="Type your question..." size="50">
-  <button onclick="askQuestion()">Ask</button>
+  <h1>Ask a Question from the PDF using AI</h1>
 
-  <h3>Response:</h3>
-  <p id="response"></p>
+  <div class="input-group">
+    <input type="text" id="question" placeholder="Type your question...">
+    <button onclick="askQuestion()">Ask</button>
+  </div>
+
+  <div id="response-section" style="display: none;">
+    <h3>Response:</h3>
+    <p id="response"></p>
+  </div>
 
   <script>
     async function askQuestion() {
       const question = document.getElementById("question").value;
-      const res = await fetch("/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question })
-      });
-      const data = await res.json();
-      document.getElementById("response").textContent = data.response || data.error;
+      const responseSection = document.getElementById("response-section");
+      const responsePara = document.getElementById("response");
+
+      if (!question.trim()) {
+        responsePara.textContent = "Please enter a question.";
+        responseSection.style.display = "block";
+        return;
+      }
+
+      try {
+        const res = await fetch("/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await res.json();
+        responsePara.textContent = data.response || data.error || "No response received.";
+        responseSection.style.display = "block";
+      } catch (error) {
+        responsePara.textContent = "Something went wrong. Please try again.";
+        responseSection.style.display = "block";
+      }
     }
   </script>
 </body>
